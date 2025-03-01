@@ -3,6 +3,10 @@ import random
 
 pygame.init()
 
+#переменные
+
+#ширина и высота
+
 WIDTH = 800
 HEIGHT = 600
 
@@ -10,12 +14,20 @@ GRID_SIZE = 25
 GRID_WIDTH = 10
 GRID_HEIGHT = 20
 
+#игровое поле
+
 PLAY_AREA_X = 50
 PLAY_AREA_Y = 50
 
+#ширина края
+
 BORDER_WIDTH = 2
 
+#фпс
+
 FPS = 30
+
+#цвета
 
 COLORS_PRESETS = {
     'Classic': {
@@ -35,11 +47,15 @@ COLORS_PRESETS = {
     }
 }
 
+#фоны
+
 BACKGROUNDS = {
     'None': None,
     'Stars': pygame.image.load("stars.jpg") if pygame.image.load("stars.jpg") else None,
     'City': pygame.image.load("city.jpg") if pygame.image.load("city.jpg") else None
 }
+
+#формы
 
 SHAPES = {
     'I': [[1, 1, 1, 1]],
@@ -68,6 +84,7 @@ class Block:
 
 
 # Класс для представления падающей фигуры тетриса
+
 class Tetromino:
     def __init__(self, shape_type):
         self.shape_type = shape_type
@@ -325,6 +342,8 @@ def main_menu(screen, selected_colors, selected_background):
     global CURRENT_COLORS, CURRENT_BACKGROUND
     menu_font = pygame.font.Font(None, 40)
 
+    #варианты выбора в меню
+
     menu_items = {
         "Start Game": (WIDTH // 2, 150),
         "Background": (WIDTH // 2, 250),
@@ -360,6 +379,8 @@ def main_menu(screen, selected_colors, selected_background):
         CURRENT_COLORS = COLORS_PRESETS[selected_colors]
         CURRENT_BACKGROUND = BACKGROUNDS[selected_background]
 
+
+#основная функция
 
 def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -473,6 +494,8 @@ def main():
         else:
             break
 
+
+#завершение
 
 if __name__ == "__main__":
     main()
