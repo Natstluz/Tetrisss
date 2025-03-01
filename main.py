@@ -106,6 +106,8 @@ class Tetromino:
             block.draw(surface)
 
 
+# Функция для отрисовки игрового поля
+
 def draw_grid(surface):
     pygame.draw.rect(surface, CURRENT_COLORS['BORDER'],
                      (PLAY_AREA_X - BORDER_WIDTH, PLAY_AREA_Y - BORDER_WIDTH,
@@ -120,6 +122,8 @@ def draw_grid(surface):
                               GRID_SIZE, GRID_SIZE), 1)
 
 
+# Функция для отрисовки текста
+
 def draw_text(surface, text, size, x, y, color):
     font = pygame.font.Font(None, size)
 
@@ -129,6 +133,8 @@ def draw_text(surface, text, size, x, y, color):
 
     surface.blit(text_surface, text_rect)
 
+
+# Функция для проверки столкновения
 
 def check_collision(tetromino, game_grid):
     for block in tetromino.blocks:
@@ -141,10 +147,14 @@ def check_collision(tetromino, game_grid):
     return False
 
 
+# Функция для блокировки фигуры
+
 def lock_tetromino(tetromino, game_grid):
     for block in tetromino.blocks:
         game_grid[block.y][block.x] = block
 
+
+# Функция для очистки линий и сдвига блоков
 
 def clear_lines(game_grid):
     lines_cleared = 0
@@ -163,10 +173,14 @@ def clear_lines(game_grid):
     return lines_cleared
 
 
+# Функция для создания новой фигуры
+
 def get_next_tetromino():
     shape_type = random.choice(list(SHAPES.keys()))
     return Tetromino(shape_type)
 
+
+# Функция для отрисовки следующей фигуры
 
 def draw_next_tetromino(surface, tetromino):
     draw_text(surface, "Next", 25, 720, 100, (255, 255, 255))
@@ -183,6 +197,8 @@ def draw_next_tetromino(surface, tetromino):
                                                        GRID_SIZE, GRID_SIZE), 1)
 
 
+# Функция для отрисовки зафиксированных блоков
+
 def draw_game_grid(surface, game_grid):
     for y, row in enumerate(game_grid):
 
@@ -192,13 +208,19 @@ def draw_game_grid(surface, game_grid):
                 block.draw(surface)
 
 
+# Функция для определения уровня на основе счёта
+
 def calculate_level(score):
     return min(score // 100 + 1, 10)
 
 
+# Функция для определения скорости на основе уровня
+
 def calculate_speed(level):
     return min(1, FPS - (level - 1) * 2)
 
+
+# Функция для окончания игры
 
 def game_over(surface, score):
     surface.fill(CURRENT_COLORS['BACKGROUND'])
@@ -220,6 +242,8 @@ def game_over(surface, score):
                 return True
     return False
 
+
+# Меню выбора цветовой темы
 
 def color_select_menu(screen, selected_color):
     menu_font = pygame.font.Font(None, 40)
@@ -258,6 +282,7 @@ def color_select_menu(screen, selected_color):
 
 
 # Меню выбора фона
+
 def background_select_menu(screen, selected_background):
     menu_font = pygame.font.Font(None, 40)
     background_options = list(BACKGROUNDS.keys())
@@ -292,7 +317,9 @@ def background_select_menu(screen, selected_background):
                     text_rect = text.get_rect(center=(WIDTH // 2, 180 + i * 50))
                     if text_rect.collidepoint(mouse_pos):
                         return background_options[i]
-                    
+
+
+# Функция главного меню
 
 def main_menu(screen, selected_colors, selected_background):
     global CURRENT_COLORS, CURRENT_BACKGROUND
@@ -313,6 +340,25 @@ def main_menu(screen, selected_colors, selected_background):
             screen.blit(text, text_rect)
 
         pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for item, pos in menu_items.items():
+                    text = menu_font.render(item, True, (255, 255, 255))
+                    text_rect = text.get_rect(center=pos)
+                    if text_rect.collidepoint(mouse_pos):
+                        if item == "Start Game":
+                            return
+                        elif item == "Background":
+                            selected_background = background_select_menu(screen, selected_background)
+                        elif item == "Color Theme":
+                            selected_colors = color_select_menu(screen, selected_colors)
+        CURRENT_COLORS = COLORS_PRESETS[selected_colors]
+        CURRENT_BACKGROUND = BACKGROUNDS[selected_background]
 
 
 def main():
