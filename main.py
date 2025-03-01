@@ -221,6 +221,79 @@ def game_over(surface, score):
     return False
 
 
+def color_select_menu(screen, selected_color):
+    menu_font = pygame.font.Font(None, 40)
+    color_options = list(COLORS_PRESETS.keys())
+    selected_index = color_options.index(selected_color)
+
+    while True:
+        screen.fill((0, 0, 0))
+        draw_text(screen, "Select Color Theme", 40, WIDTH // 2, 100, (255, 255, 255))
+
+        for i, option in enumerate(color_options):
+            text = menu_font.render(option, True, (255, 255, 255) if i != selected_index else (255, 255, 0))
+            text_rect = text.get_rect(center=(WIDTH // 2, 180 + i * 50))
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected_index = (selected_index - 1) % len(color_options)
+                elif event.key == pygame.K_DOWN:
+                    selected_index = (selected_index + 1) % len(color_options)
+                elif event.key == pygame.K_RETURN:
+                    return color_options[selected_index]
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, option in enumerate(color_options):
+                    text = menu_font.render(option, True, (255, 255, 255) if i != selected_index else (255, 255, 0))
+                    text_rect = text.get_rect(center=(WIDTH // 2, 180 + i * 50))
+                    if text_rect.collidepoint(mouse_pos):
+                        return color_options[i]
+
+
+# Меню выбора фона
+def background_select_menu(screen, selected_background):
+    menu_font = pygame.font.Font(None, 40)
+    background_options = list(BACKGROUNDS.keys())
+    selected_index = background_options.index(selected_background)
+
+    while True:
+        screen.fill((0, 0, 0))
+        draw_text(screen, "Select Background", 40, WIDTH // 2, 100, (255, 255, 255))
+
+        for i, option in enumerate(background_options):
+            text = menu_font.render(option, True, (255, 255, 255) if i != selected_index else (255, 255, 0))
+            text_rect = text.get_rect(center=(WIDTH // 2, 180 + i * 50))
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected_index = (selected_index - 1) % len(background_options)
+                elif event.key == pygame.K_DOWN:
+                    selected_index = (selected_index + 1) % len(background_options)
+                elif event.key == pygame.K_RETURN:
+                    return background_options[selected_index]
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, option in enumerate(background_options):
+                    text = menu_font.render(option, True, (255, 255, 255) if i != selected_index else (255, 255, 0))
+                    text_rect = text.get_rect(center=(WIDTH // 2, 180 + i * 50))
+                    if text_rect.collidepoint(mouse_pos):
+                        return background_options[i]
+                    
+
 def main_menu(screen, selected_colors, selected_background):
     global CURRENT_COLORS, CURRENT_BACKGROUND
     menu_font = pygame.font.Font(None, 40)
