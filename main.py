@@ -51,3 +51,76 @@ SHAPES = {
     'Z': [[1, 1, 0], [0, 1, 1]]
 }
 
+# Класс для представления отдельного блока
+class Block:
+    def __init__(self, x, y, color):
+        self.x = x
+        self.y = y
+        self.color = color
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, (self.x * GRID_SIZE + PLAY_AREA_X,
+                                               self.y * GRID_SIZE + PLAY_AREA_Y,
+                                               GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(surface, CURRENT_COLORS['GRID'], (self.x * GRID_SIZE + PLAY_AREA_X,
+                                                           self.y * GRID_SIZE + PLAY_AREA_Y,
+                                                           GRID_SIZE, GRID_SIZE), 1)
+
+
+# Класс для представления падающей фигуры тетриса
+class Tetromino:
+    def __init__(self, shape_type):
+        self.shape_type = shape_type
+        self.shape = SHAPES[shape_type]
+        self.color = CURRENT_COLORS[shape_type]
+        self.x = GRID_WIDTH // 2 - len(self.shape[0]) // 2
+        self.y = 0
+        self.rotation = 0
+        self.blocks = self.get_blocks()
+
+    def rotate(self):
+        rotated_shape = list(zip(*reversed(self.shape)))
+
+        if self.x + len(rotated_shape[0]) > GRID_WIDTH:
+            self.x = GRID_WIDTH - len(rotated_shape[0])
+
+        self.shape = [list(row) for row in rotated_shape]
+        self.rotation = (self.rotation + 1) % 4
+        self.blocks = self.get_blocks()
+
+    def get_blocks(self):
+        blocks = []
+        for y, row in enumerate(self.shape):
+            for x, cell in enumerate(row):
+                if cell:
+                    blocks.append(Block(self.x + x, self.y + y, self.color))
+        return blocks
+
+    def move(self, dx, dy):
+        self.x += dx
+        self.y += dy
+        self.blocks = self.get_blocks()
+
+    def draw(self, surface):
+        for block in self.blocks:
+            block.draw(surface)
+
+def main_menu(screen, selected_colors, selected_background):
+    global CURRENT_COLORS, CURRENT_BACKGROUND
+    menu_font = pygame.font.Font(None, 40)
+
+    menu_items = {
+        "Start Game": (WIDTH // 2, 150),
+        "Background": (WIDTH // 2, 250),
+        "Color Theme": (WIDTH // 2, 350)
+    }
+
+    while True:
+        screen.fill((0, 0, 0))
+
+        for item, pos in menu_items.items():
+            text = menu_font.render(item, True, (255, 255, 255))
+            text_rect = text.get_rect(center=pos)
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
