@@ -313,3 +313,120 @@ def main_menu(screen, selected_colors, selected_background):
             screen.blit(text, text_rect)
 
         pygame.display.flip()
+
+
+def main():
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+    pygame.display.set_caption("Tetris")
+
+    clock = pygame.time.Clock()
+
+    global CURRENT_COLORS, CURRENT_BACKGROUND
+
+    selected_colors = 'Classic'
+    selected_background = 'None'
+
+    while True:
+        main_menu(screen, selected_colors, selected_background)
+
+        game_grid = [[None] * GRID_WIDTH for _ in range(GRID_HEIGHT)]
+
+        score = 0
+        level = 1
+
+        drop_speed = calculate_speed(level)
+
+        drop_timer = 0
+
+        current_tetromino = get_next_tetromino()
+        next_tetromino = get_next_tetromino()
+        game_active = True
+
+        while game_active:
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        current_tetromino.move(-1, 0)
+
+                        if check_collision(current_tetromino, game_grid):
+                            current_tetromino.move(1, 0)
+
+                    elif event.key == pygame.K_RIGHT:
+                        current_tetromino.move(1, 0)
+
+                        if check_collision(current_tetromino, game_grid):
+                            current_tetromino.move(-1, 0)
+
+                    elif event.key == pygame.K_DOWN:
+                        current_tetromino.move(0, 1)
+
+                        if check_collision(current_tetromino, game_grid):
+                            current_tetromino.move(0, -1)
+
+                            lock_tetromino(current_tetromino, game_grid)
+                            current_tetromino = next_tetromino
+
+                            next_tetromino = get_next_tetromino()
+                            score += clear_lines(game_grid) * 100 * level
+
+                            level = calculate_level(score)
+                            drop_speed = calculate_speed(level)
+
+                    elif event.key == pygame.K_UP:
+                        current_tetromino.rotate()
+
+                        if check_collision(current_tetromino, game_grid):
+                            for i in range(4):
+                                current_tetromino.rotate()
+
+            drop_timer += clock.tick(FPS)
+            if drop_timer >= 1000 / drop_speed:
+                drop_timer = 0
+                current_tetromino.move(0, 1)
+
+                if check_collision(current_tetromino, game_grid):
+                    current_tetromino.move(0, -1)
+
+                    lock_tetromino(current_tetromino, game_grid)
+                    current_tetromino = next_tetromino
+
+                    next_tetromino = get_next_tetromino()
+                    score += clear_lines(game_grid) * 100 * level
+
+                    level = calculate_level(score)
+                    drop_speed = calculate_speed(level)
+
+                    if check_collision(current_tetromino, game_grid):
+                        game_active = False
+                        break
+
+            if CURRENT_BACKGROUND:
+                screen.blit(pygame.transform.scale(CURRENT_BACKGROUND, (WIDTH, HEIGHT)), (0, 0))
+
+            else:
+                screen.fill(CURRENT_COLORS['BACKGROUND'])
+            draw_grid(screen)
+            draw_game_grid(screen, game_grid)
+
+            current_tetromino.draw(screen)
+            draw_next_tetromino(screen, next_tetromino)
+
+            draw_text(screen, f"Score: {score}", 25, 720, 180, (255, 255, 255))
+            draw_text(screen, f"Level: {level}", 25, 720, 220, (255, 255, 255))
+
+            pygame.display.flip()
+
+        if game_over(screen, score):
+            continue
+        else:
+            break
+
+
+if __name__ == "__main__":
+    main()
