@@ -105,6 +105,122 @@ class Tetromino:
         for block in self.blocks:
             block.draw(surface)
 
+
+def draw_grid(surface):
+    pygame.draw.rect(surface, CURRENT_COLORS['BORDER'],
+                     (PLAY_AREA_X - BORDER_WIDTH, PLAY_AREA_Y - BORDER_WIDTH,
+                      GRID_WIDTH * GRID_SIZE + 2 * BORDER_WIDTH,
+                      GRID_HEIGHT * GRID_SIZE + 2 * BORDER_WIDTH), BORDER_WIDTH)
+
+    for x in range(GRID_WIDTH):
+
+        for y in range(GRID_HEIGHT):
+            pygame.draw.rect(surface, CURRENT_COLORS['GRID'],
+                             (PLAY_AREA_X + x * GRID_SIZE, PLAY_AREA_Y + y * GRID_SIZE,
+                              GRID_SIZE, GRID_SIZE), 1)
+
+
+def draw_text(surface, text, size, x, y, color):
+    font = pygame.font.Font(None, size)
+
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (x, y)
+
+    surface.blit(text_surface, text_rect)
+
+
+def check_collision(tetromino, game_grid):
+    for block in tetromino.blocks:
+
+        x, y = block.x, block.y
+
+        if x < 0 or x >= GRID_WIDTH or y >= GRID_HEIGHT or (y >= 0 and game_grid[y][x] is not None):
+            return True
+
+    return False
+
+
+def lock_tetromino(tetromino, game_grid):
+    for block in tetromino.blocks:
+        game_grid[block.y][block.x] = block
+
+
+def clear_lines(game_grid):
+    lines_cleared = 0
+    full_rows = []
+
+    for y in range(GRID_HEIGHT):
+        if all(cell is not None for cell in game_grid[y]):
+            lines_cleared += 1
+            full_rows.append(y)
+
+    if lines_cleared > 0:
+        for row in reversed(full_rows):
+            del game_grid[row]
+            game_grid.insert(0, [None] * GRID_WIDTH)
+
+    return lines_cleared
+
+
+def get_next_tetromino():
+    shape_type = random.choice(list(SHAPES.keys()))
+    return Tetromino(shape_type)
+
+
+def draw_next_tetromino(surface, tetromino):
+    draw_text(surface, "Next", 25, 720, 100, (255, 255, 255))
+
+    for block in tetromino.blocks:
+        x = block.x + 14
+        y = block.y + 5
+
+        pygame.draw.rect(surface, block.color, (x * GRID_SIZE + PLAY_AREA_X,
+                                                y * GRID_SIZE + PLAY_AREA_Y,
+                                                GRID_SIZE, GRID_SIZE))
+    pygame.draw.rect(surface, CURRENT_COLORS['GRID'], (x * GRID_SIZE + PLAY_AREA_X,
+                                                       y * GRID_SIZE + PLAY_AREA_Y,
+                                                       GRID_SIZE, GRID_SIZE), 1)
+
+
+def draw_game_grid(surface, game_grid):
+    for y, row in enumerate(game_grid):
+
+        for x, block in enumerate(row):
+
+            if block:
+                block.draw(surface)
+
+
+def calculate_level(score):
+    return min(score // 100 + 1, 10)
+
+
+def calculate_speed(level):
+    return min(1, FPS - (level - 1) * 2)
+
+
+def game_over(surface, score):
+    surface.fill(CURRENT_COLORS['BACKGROUND'])
+
+    draw_text(surface, "Game Over", 60, WIDTH // 2, HEIGHT // 2 - 50, (255, 0, 0))
+    draw_text(surface, f"Score: {score}", 40, WIDTH // 2, HEIGHT // 2 + 10, (255, 255, 255))
+    draw_text(surface, "Press any key to restart", 30, WIDTH // 2, HEIGHT // 2 + 60, (200, 200, 200))
+
+    pygame.display.flip()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                return True
+    return False
+
+
 def main_menu(screen, selected_colors, selected_background):
     global CURRENT_COLORS, CURRENT_BACKGROUND
     menu_font = pygame.font.Font(None, 40)
